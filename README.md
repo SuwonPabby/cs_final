@@ -18,7 +18,7 @@ cs_final/
 │   ├── DoubleList.hpp        # 헤더 및 구현
 │   ├── test_doublelist.cpp   # 테스트 코드
 │   └── Makefile              # 컴파일 설정
-├── bst/                      # BST (이진 탐색 트리)
+├── bst/                      # SMCNumberBST (이진 탐색 트리)
 │   ├── BST.hpp               # 헤더 및 구현
 │   ├── test_bst.cpp          # 테스트 코드
 │   └── Makefile              # 컴파일 설정
@@ -48,8 +48,9 @@ cs_final/
 
 ### Week 11: Trees
 
-- **BST**: 이진 탐색 트리
-- 삽입, 삭제, 탐색, 트리 순회 (In/Pre/Post/Level-order)
+- **SMCNumberBST**: 이진 탐색 트리 (정수 전용)
+- 삽입, 삭제, 탐색(contains), 트리 순회 (In/Pre/Post/Level-order)
+- 출력 연산자 지원 (ascending order)
 
 ### Week 13: Hash Maps
 
@@ -126,20 +127,23 @@ make clean  # 정리
 - Iterator 구현
 - 임의 위치 삽입/삭제
 
-### 4. BST (이진 탐색 트리)
+### 4. SMCNumberBST (이진 탐색 트리)
 
 **위치**: `bst/`
 **주요 기능**:
 
 - 삽입, 삭제, 검색 (O(log n) 평균)
+- `insert(int)`, `remove(int)`, `contains(int)`
 - 트리 순회: In-order, Pre-order, Post-order, Level-order
 - `findMin()`, `findMax()`, `height()`
+- 출력 연산자: `operator<<` (ascending order로 출력)
 
 **시험 포인트**:
 
 - 노드 삭제 3가지 경우 (자식 0개, 1개, 2개)
 - 트리 순회 알고리즘 (재귀 vs 반복)
 - BST 성질 유지
+- **BSTNode 구조**: `int number`, `BSTNode* left`, `BSTNode* right`
 
 ### 5. HashMap (해시 맵)
 
@@ -179,8 +183,9 @@ make clean  # 정리
 1. **smcVector::pop_back()** - 크기만 감소
 2. **DoubleList 대입 연산자** - 깊은 복사
 3. **SinglyList::reverse()** - 포인터 조작
-4. **BST 노드 삭제** - 3가지 경우 처리
-5. **그래프 BFS/DFS** - 큐/스택 사용
+4. **SMCNumberBST 노드 삭제** - 3가지 경우 처리
+5. **SMCNumberBST::contains()** - 이진 탐색
+6. **그래프 BFS/DFS** - 큐/스택 사용
 
 ### 메모리 관리:
 
@@ -192,7 +197,7 @@ make clean  # 정리
 
 - Vector: 접근 O(1), 삽입 O(1) amortized
 - Linked List: 삽입/삭제 O(1), 접근 O(n)
-- BST: 모든 연산 O(log n) 평균, O(n) 최악
+- SMCNumberBST: 모든 연산 O(log n) 평균, O(n) 최악
 - HashMap: 모든 연산 O(1) 평균
 - Graph: BFS/DFS O(V+E), Dijkstra O((V+E)log V)
 
@@ -211,11 +216,12 @@ vec.push_back(10);
 vec.push_back(20);
 std::cout << vec[0] << std::endl; // 10
 
-// BST 사용
-BST<int> tree;
+// SMCNumberBST 사용
+SMCNumberBST tree;
 tree.insert(50);
 tree.insert(30);
-tree.inOrder(); // 정렬된 순서로 출력
+std::cout << tree << std::endl; // 정렬된 순서로 출력
+bool found = tree.contains(30); // true
 
 // Graph 사용
 Graph g(5, false); // 5개 정점, 무방향
@@ -223,4 +229,4 @@ g.addEdge(0, 1);
 g.BFS(0); // BFS 탐색
 ```
 
-이 프로젝트의 모든 구현은 시험에서 직접 묻는 형태로 작성되었습니다. 각 자료구조를 이해하고 핵심 메서드들을 손으로 구현할 수 있도록 연습하세요! 🎓
+이 프로젝트의 모든 구현은 시험에서 직접 묻는 형태로 작성되었습니다. 특히 **SMCNumberBST**는 교수님이 제공한 정확한 인터페이스에 맞게 구현되어 있으니 `contains()` 메서드와 출력 연산자를 잘 숙지하세요! 🎓

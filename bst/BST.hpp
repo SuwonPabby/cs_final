@@ -5,29 +5,35 @@
 #include <queue>
 #include <stdexcept>
 
-template <typename T> class BST {
+struct BSTNode {
+  // Value stored in this node
+  int number;
+  // Pointer to left child
+  BSTNode *left;
+  // Pointer to right child
+  BSTNode *right;
+
+  BSTNode(int num) : number(num), left(nullptr), right(nullptr) {}
+};
+
+class SMCNumberBST {
 private:
-  struct Node {
-    T mData;
-    Node *mLeft;
-    Node *mRight;
-
-    Node(const T &data) : mData(data), mLeft(nullptr), mRight(nullptr) {}
-  };
-
-  Node *mRoot;
+  BSTNode *mRoot;
   unsigned mSize;
 
 public:
-  // Constructor and destructor
-  BST() : mRoot(nullptr), mSize(0) {}
+  // Constructor
+  SMCNumberBST() : mRoot(nullptr), mSize(0) {}
 
-  ~BST() { clear(); }
+  // Destructor
+  ~SMCNumberBST() { clear(); }
 
   // Copy constructor and assignment operator
-  BST(const BST &other) : mRoot(nullptr), mSize(0) { copyFrom(other.mRoot); }
+  SMCNumberBST(const SMCNumberBST &other) : mRoot(nullptr), mSize(0) {
+    copyFrom(other.mRoot);
+  }
 
-  BST &operator=(const BST &other) {
+  SMCNumberBST &operator=(const SMCNumberBST &other) {
     if (this != &other) {
       clear();
       copyFrom(other.mRoot);
@@ -35,23 +41,32 @@ public:
     return *this;
   }
 
-  // Basic operations
+  // Clear the tree
   void clear() {
     clearHelper(mRoot);
     mRoot = nullptr;
     mSize = 0;
   }
 
+  // Get the size
   unsigned size() const { return mSize; }
 
   bool empty() const { return mSize == 0; }
 
-  // Insert and search operations
-  void insert(const T &value) { mRoot = insertHelper(mRoot, value); }
+  // Insert a number into the BST
+  void insert(int num) { mRoot = insertHelper(mRoot, num); }
 
-  bool find(const T &value) const { return findHelper(mRoot, value); }
+  // Find out whether a number is in the BST
+  bool contains(int num) const { return containsHelper(mRoot, num); }
 
-  void remove(const T &value) { mRoot = removeHelper(mRoot, value); }
+  // Removes a number from the BST, if it exists
+  void remove(int num) { mRoot = removeHelper(mRoot, num); }
+
+  // Output the the contents of the tree, in ascending order
+  friend std::ostream &operator<<(std::ostream &os, const SMCNumberBST &tree) {
+    tree.inOrderHelper(tree.mRoot, os);
+    return os;
+  }
 
   // Tree traversals (시험에서 자주 출제)
   void inOrder() const {
@@ -81,100 +96,100 @@ public:
   // Tree properties
   int height() const { return heightHelper(mRoot); }
 
-  T findMin() const {
+  int findMin() const {
     if (!mRoot) {
       throw std::runtime_error("Tree is empty");
     }
-    Node *current = mRoot;
-    while (current->mLeft) {
-      current = current->mLeft;
+    BSTNode *current = mRoot;
+    while (current->left) {
+      current = current->left;
     }
-    return current->mData;
+    return current->number;
   }
 
-  T findMax() const {
+  int findMax() const {
     if (!mRoot) {
       throw std::runtime_error("Tree is empty");
     }
-    Node *current = mRoot;
-    while (current->mRight) {
-      current = current->mRight;
+    BSTNode *current = mRoot;
+    while (current->right) {
+      current = current->right;
     }
-    return current->mData;
+    return current->number;
   }
 
 private:
-  void clearHelper(Node *node) {
+  void clearHelper(BSTNode *node) {
     if (node) {
-      clearHelper(node->mLeft);
-      clearHelper(node->mRight);
+      clearHelper(node->left);
+      clearHelper(node->right);
       delete node;
     }
   }
 
-  Node *insertHelper(Node *node, const T &value) {
+  BSTNode *insertHelper(BSTNode *node, int value) {
     if (!node) {
       ++mSize;
-      return new Node(value);
+      return new BSTNode(value);
     }
 
-    if (value < node->mData) {
-      node->mLeft = insertHelper(node->mLeft, value);
-    } else if (value > node->mData) {
-      node->mRight = insertHelper(node->mRight, value);
+    if (value < node->number) {
+      node->left = insertHelper(node->left, value);
+    } else if (value > node->number) {
+      node->right = insertHelper(node->right, value);
     }
     // 중복 값은 삽입하지 않음
 
     return node;
   }
 
-  bool findHelper(Node *node, const T &value) const {
+  bool containsHelper(BSTNode *node, int value) const {
     if (!node) {
       return false;
     }
 
-    if (value == node->mData) {
+    if (value == node->number) {
       return true;
-    } else if (value < node->mData) {
-      return findHelper(node->mLeft, value);
+    } else if (value < node->number) {
+      return containsHelper(node->left, value);
     } else {
-      return findHelper(node->mRight, value);
+      return containsHelper(node->right, value);
     }
   }
 
-  Node *removeHelper(Node *node, const T &value) {
+  BSTNode *removeHelper(BSTNode *node, int value) {
     if (!node) {
       return node;
     }
 
-    if (value < node->mData) {
-      node->mLeft = removeHelper(node->mLeft, value);
-    } else if (value > node->mData) {
-      node->mRight = removeHelper(node->mRight, value);
+    if (value < node->number) {
+      node->left = removeHelper(node->left, value);
+    } else if (value > node->number) {
+      node->right = removeHelper(node->right, value);
     } else {
       // 삭제할 노드를 찾음
       --mSize;
 
       // Case 1: 자식이 없음
-      if (!node->mLeft && !node->mRight) {
+      if (!node->left && !node->right) {
         delete node;
         return nullptr;
       }
       // Case 2: 한 쪽 자식만 있음
-      else if (!node->mLeft) {
-        Node *temp = node->mRight;
+      else if (!node->left) {
+        BSTNode *temp = node->right;
         delete node;
         return temp;
-      } else if (!node->mRight) {
-        Node *temp = node->mLeft;
+      } else if (!node->right) {
+        BSTNode *temp = node->left;
         delete node;
         return temp;
       }
       // Case 3: 두 자식 모두 있음
       else {
-        Node *successor = findMinNode(node->mRight);
-        node->mData = successor->mData;
-        node->mRight = removeHelper(node->mRight, successor->mData);
+        BSTNode *successor = findMinNode(node->right);
+        node->number = successor->number;
+        node->right = removeHelper(node->right, successor->number);
         ++mSize; // removeHelper에서 감소시킨 것을 복원
       }
     }
@@ -182,34 +197,42 @@ private:
     return node;
   }
 
-  Node *findMinNode(Node *node) const {
-    while (node->mLeft) {
-      node = node->mLeft;
+  BSTNode *findMinNode(BSTNode *node) const {
+    while (node->left) {
+      node = node->left;
     }
     return node;
   }
 
-  void inOrderHelper(Node *node) const {
+  void inOrderHelper(BSTNode *node) const {
     if (node) {
-      inOrderHelper(node->mLeft);
-      std::cout << node->mData << " ";
-      inOrderHelper(node->mRight);
+      inOrderHelper(node->left);
+      std::cout << node->number << " ";
+      inOrderHelper(node->right);
     }
   }
 
-  void preOrderHelper(Node *node) const {
+  void inOrderHelper(BSTNode *node, std::ostream &os) const {
     if (node) {
-      std::cout << node->mData << " ";
-      preOrderHelper(node->mLeft);
-      preOrderHelper(node->mRight);
+      inOrderHelper(node->left, os);
+      os << node->number << " ";
+      inOrderHelper(node->right, os);
     }
   }
 
-  void postOrderHelper(Node *node) const {
+  void preOrderHelper(BSTNode *node) const {
     if (node) {
-      postOrderHelper(node->mLeft);
-      postOrderHelper(node->mRight);
-      std::cout << node->mData << " ";
+      std::cout << node->number << " ";
+      preOrderHelper(node->left);
+      preOrderHelper(node->right);
+    }
+  }
+
+  void postOrderHelper(BSTNode *node) const {
+    if (node) {
+      postOrderHelper(node->left);
+      postOrderHelper(node->right);
+      std::cout << node->number << " ";
     }
   }
 
@@ -217,40 +240,40 @@ private:
     if (!mRoot)
       return;
 
-    std::queue<Node *> q;
+    std::queue<BSTNode *> q;
     q.push(mRoot);
 
     while (!q.empty()) {
-      Node *current = q.front();
+      BSTNode *current = q.front();
       q.pop();
 
-      std::cout << current->mData << " ";
+      std::cout << current->number << " ";
 
-      if (current->mLeft) {
-        q.push(current->mLeft);
+      if (current->left) {
+        q.push(current->left);
       }
-      if (current->mRight) {
-        q.push(current->mRight);
+      if (current->right) {
+        q.push(current->right);
       }
     }
   }
 
-  int heightHelper(Node *node) const {
+  int heightHelper(BSTNode *node) const {
     if (!node) {
       return -1;
     }
 
-    int leftHeight = heightHelper(node->mLeft);
-    int rightHeight = heightHelper(node->mRight);
+    int leftHeight = heightHelper(node->left);
+    int rightHeight = heightHelper(node->right);
 
     return 1 + std::max(leftHeight, rightHeight);
   }
 
-  void copyFrom(Node *node) {
+  void copyFrom(BSTNode *node) {
     if (node) {
-      insert(node->mData);
-      copyFrom(node->mLeft);
-      copyFrom(node->mRight);
+      insert(node->number);
+      copyFrom(node->left);
+      copyFrom(node->right);
     }
   }
 };
